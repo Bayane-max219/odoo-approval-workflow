@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ─── APPROVAL REQUEST ─── -->
+
+    <record id="view_approval_request_form" model="ir.ui.view">
+        <field name="name">approval.request.form</field>
+        <field name="model">approval.request</field>
+        <field name="arch" type="xml">
+            <form string="Approval Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="%(action_approval_action_wizard)d" string="Approve / Refuse"
+                            type="action" context="{'default_request_id': active_id}"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'pending')]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,approved,refused"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <div class="o_field_widget o_progressbar" style="margin-bottom:16px;">
+                        <field name="progress" widget="progressbar"/>
+                    </div>
+                    <group>
+                        <group string="Request Details">
+                            <field name="template_id"/>
+                            <field name="requester_id"/>
+                            <field name="current_approver_id" readonly="1"/>
+                            <field name="deadline" readonly="1"/>
+                        </group>
+                        <group string="Source Document">
+                            <field name="res_name" string="Document" readonly="1"/>
+                            <field name="res_model" invisible="1"/>
+                            <field name="res_id" invisible="1"/>
+                            <field name="current_level" readonly="1"/>
+                            <field name="total_levels" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Approval History" name="history">
+                            <field name="line_ids" readonly="1">
+                                <tree>
+                                    <field name="level_sequence" string="Level"/>
+                                    <field name="approver_id"/>
+                                    <field name="decision" widget="badge"
+                                           decoration-success="decision == 'approved'"
+                                           decoration-danger="decision == 'refused'"
+                                           decoration-info="decision == 'delegated'"/>
+                                    <field name="decision_date"/>
+                                    <field name="comment"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_approval_request_list" model="ir.ui.view">
+        <field name="name">approval.request.list</field>
+        <field name="model">approval.request</field>
+        <field name="arch" type="xml">
+            <tree string="Approval Requests"
+                  decoration-success="state == 'approved'"
+                  decoration-danger="state == 'refused'"
+                  decoration-warning="state == 'pending'">
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="requester_id"/>
+                <field name="current_approver_id"/>
+                <field name="deadline"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'refused'"
+                       decoration-warning="state == 'pending'"
+                       decoration-muted="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_approval_request_kanban" model="ir.ui.view">
+        <field name="name">approval.request.kanban</field>
+        <field name="model">approval.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="template_id"/>
+                <field name="requester_id"/>
+                <field name="current_approver_id"/>
+                <field name="deadline"/>
+                <field name="progress"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-muted"><field name="template_id"/></span>
+                                </div>
+                                <div>
+                                    Approver: <field name="current_approver_id"/>
+                                </div>
+                                <div t-if="record.deadline.raw_value">
+                                    Deadline: <field name="deadline"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="progress" widget="progressbar"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_approval_request_search" model="ir.ui.view">
+        <field name="name">approval.request.search</field>
+        <field name="model">approval.request</field>
+        <field name="arch" type="xml">
+            <search string="Approval Requests">
+                <field name="name"/>
+                <field name="template_id"/>
+                <field name="requester_id"/>
+                <field name="current_approver_id"/>
+                <filter string="My Requests" name="my_requests"
+                        domain="[('requester_id', '=', uid)]"/>
+                <filter string="Pending My Approval" name="pending_me"
+                        domain="[('state','=','pending'),('current_approver_id','=',uid)]"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Pending" name="pending" domain="[('state','=','pending')]"/>
+                <filter string="Approved" name="approved" domain="[('state','=','approved')]"/>
+                <filter string="Refused" name="refused" domain="[('state','=','refused')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Template" name="group_template"
+                            context="{'group_by': 'template_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Requester" name="group_requester"
+                            context="{'group_by': 'requester_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_approval_request" model="ir.actions.act_window">
+        <field name="name">Approval Requests</field>
+        <field name="res_model">approval.request</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No approval requests yet</p>
+            <p>Approval requests are created automatically when a purchase order or expense report
+               matches a configured approval template.</p>
+        </field>
+    </record>
+
+    <record id="action_my_approval_requests" model="ir.actions.act_window">
+        <field name="name">My Approval Requests</field>
+        <field name="res_model">approval.request</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_my_requests': 1}</field>
+    </record>
+
+    <record id="action_pending_my_approval" model="ir.actions.act_window">
+        <field name="name">Pending My Approval</field>
+        <field name="res_model">approval.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending_me': 1}</field>
+    </record>
+
+</odoo>

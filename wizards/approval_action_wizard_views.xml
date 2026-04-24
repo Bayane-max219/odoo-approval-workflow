@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_approval_action_wizard_form" model="ir.ui.view">
+        <field name="name">approval.action.wizard.form</field>
+        <field name="model">approval.action.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Approve / Refuse Request">
+                <group>
+                    <field name="request_id" readonly="1"/>
+                    <field name="action" widget="radio"/>
+                    <field name="comment" placeholder="Optional comment or reason..."
+                           attrs="{'required': [('action', '=', 'refuse')]}"/>
+                    <field name="delegate_to_id"
+                           attrs="{'invisible': [('action', '!=', 'delegate')],
+                                   'required': [('action', '=', 'delegate')]}"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_approval_action_wizard" model="ir.actions.act_window">
+        <field name="name">Approve / Refuse</field>
+        <field name="res_model">approval.action.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_approval_request"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+</odoo>
