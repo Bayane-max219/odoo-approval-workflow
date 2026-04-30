@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root menu -->
+    <menuitem id="menu_approval_root"
+              name="Approvals"
+              sequence="85"
+              web_icon="odoo_approval_workflow,static/description/icon.png"/>
+
+    <!-- Requests section -->
+    <menuitem id="menu_approval_requests"
+              name="Requests"
+              parent="menu_approval_root"
+              sequence="10"/>
+
+    <menuitem id="menu_all_approval_requests"
+              name="All Requests"
+              parent="menu_approval_requests"
+              action="action_approval_request"
+              sequence="10"/>
+
+    <menuitem id="menu_my_approval_requests"
+              name="My Requests"
+              parent="menu_approval_requests"
+              action="action_my_approval_requests"
+              sequence="20"/>
+
+    <menuitem id="menu_pending_my_approval"
+              name="Pending My Approval"
+              parent="menu_approval_requests"
+              action="action_pending_my_approval"
+              sequence="30"/>
+
+    <!-- Configuration section -->
+    <menuitem id="menu_approval_config"
+              name="Configuration"
+              parent="menu_approval_root"
+              sequence="50"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_approval_templates"
+              name="Approval Templates"
+              parent="menu_approval_config"
+              action="action_approval_template"
+              sequence="10"/>
+
+</odoo>

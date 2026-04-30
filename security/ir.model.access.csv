@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_approval_template,approval.template,model_approval_template,base.group_system,1,1,1,1
+access_approval_template_user,approval.template user,model_approval_template,base.group_user,1,0,0,0
+access_approval_template_level,approval.template.level,model_approval_template_level,base.group_system,1,1,1,1
+access_approval_template_level_user,approval.template.level user,model_approval_template_level,base.group_user,1,0,0,0
+access_approval_request,approval.request,model_approval_request,base.group_user,1,1,1,0
+access_approval_request_line,approval.request.line,model_approval_request_line,base.group_user,1,1,1,0
+access_approval_wizard,approval.action.wizard,model_approval_action_wizard,base.group_user,1,1,1,1

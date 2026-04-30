@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend purchase.order form to show approval state and smart button -->
+
+    <record id="view_purchase_order_approval_form" model="ir.ui.view">
+        <field name="name">purchase.order.approval.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Smart button for approval request -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_approval_request" type="object"
+                        class="oe_stat_button" icon="fa-check-circle"
+                        invisible="not approval_request_id">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Approval</span>
+                        <span class="o_stat_value">
+                            <field name="approval_state" widget="badge"
+                                   decoration-warning="approval_state == 'pending'"
+                                   decoration-success="approval_state == 'approved'"
+                                   decoration-danger="approval_state == 'refused'"/>
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Approval state field in the form (hidden, used by smart button) -->
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="approval_state" invisible="1"/>
+                <field name="approval_request_id" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Extend purchase.order list view to show approval state -->
+
+    <record id="view_purchase_order_approval_list" model="ir.ui.view">
+        <field name="name">purchase.order.approval.list</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="approval_state" optional="show" widget="badge"
+                       decoration-warning="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'refused'"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
